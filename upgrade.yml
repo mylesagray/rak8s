@@ -8,10 +8,8 @@
 
     - name: Upgrade kubeadm
       apt:
-        name: "{{ item }}"
+        name: ['kubeadm']
         state: latest
-      with_items:
-        - kubeadm
 
     - name: Determine latest stable version of Kubernetes
       shell: curl -sSL https://dl.k8s.io/release/stable.txt
@@ -39,11 +37,8 @@
   tasks:
     - name: Upgrade Y'all
       apt:
-        name: "{{ item }}"
+        name: ['kubelet','kubectl']
         state: latest
-      with_items:
-        - kubelet
-        - kubectl
       tags:
         - kubelet
         - kubectl

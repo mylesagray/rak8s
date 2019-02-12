@@ -1,6 +1,6 @@
 ---
 - name: "Reset Kubernetes"
-  shell: echo $(kubeadm reset && echo 'true') 
+  shell: echo $(kubeadm reset -f && echo 'true') 
 
 - name: "Remove docker images" 
   shell: echo $(docker rmi --force $(docker images --all -q) && echo 'true')
@@ -14,19 +14,39 @@
 
 - name: "apt-get purge packages"
   apt:
-    name: "{{ item }}"
+    name: ['kubelet', 'kubeadm', 'kubectl', 'docker-ce']
     state: absent
     purge: yes
     autoremove: yes
     force: yes
-  with_items:
-    - kubelet
-    - kubeadm
-    - kubectl
-    - docker-ce
 
 - name: "Remove pod logging"
   shell: rm -rf /var/log/pods/* 
+  become: True
+
+  # some extra cleanup https://stackoverflow.com/a/41372829/571593
+- name: "Remove .kube folder"
+  shell: rm -rf /root/.kube 
+  become: True
+
+- name: "Remove /etc/kubernetes"
+  shell: rm -rf /etc/kubernetes
+  become: True
+
+- name: "Remove etcd persistence"
+  shell: rm -rf /var/lib/etcd
+  become: True
+
+- name: "Remove kubelet leftovers"
+  shell: rm -rf /var/lib/kubelet
+  become: True
+
+- name: "Remove CNI leftovers"
+  shell: rm -rf /var/lib/cni && rm -rf /etc/cni
+  become: True
+
+- name: "Remove Flannel leftovers"
+  shell: rm -rf /run/flannel
   become: True
 
 - name: Reboot

@@ -4,6 +4,24 @@
   shell: kubeadm reset -f
   register: kubeadm_reset
 
+- name: Pull kubeadm images in advance
+  shell: kubeadm config images pull
+
+- name: Add patch script to master
+  template:
+    src: config-patch.sh
+    dest: /etc/kubernetes/config-patch.sh
+    owner: root
+    group: root
+    mode: 0744
+
+- name: Patch API server timeouts
+  shell: /etc/kubernetes/config-patch.sh
+  async: 7200
+  poll: 0
+  args:
+    executable: /bin/bash
+
 - name: "Initialize Master {{ kubernetes_version }}"
   shell: kubeadm init --apiserver-advertise-address={{ ansible_default_ipv4.address }} --token={{ token }} --kubernetes-version={{ kubernetes_version }} --pod-network-cidr={{ podnet }}
   register: kubeadm_init
@@ -33,8 +51,11 @@
   when: kubeadm_reset is succeeded
   register: kubeadm_join
 
+- name: Give master a few seconds to start
+  shell: sleep 10
+
 - name: Install Flannel (Networking)
-  shell: "curl -sSL https://rawgit.com/coreos/flannel/{{ flannel_version }}/Documentation/kube-flannel.yml | sed 's/amd64/arm/g' | kubectl create -f -" 
+  shell: "curl -sSL https://rawgit.com/coreos/flannel/{{ flannel_version }}/Documentation/kube-flannel.yml | kubectl create -f -" 
 
 - name: Poke kubelet
   systemd:
