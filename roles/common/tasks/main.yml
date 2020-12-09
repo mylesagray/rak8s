@@ -36,27 +36,28 @@
   tags:
     - boot
 
+# Doc: http://manpages.ubuntu.com/manpages/trusty/man8/dphys-swapfile.8.html
+- name: Disable Swap
+  lineinfile:
+    path: /etc/dphys-swapfile
+    regexp: '^CONF_SWAPSIZE='
+    line: CONF_SWAPSIZE=0
+  register: swap
+
 - name: apt-get update
   apt:
-    update_cache: yes
-    autoclean: yes
-    autoremove: yes
+    update_cache: 'yes'
+    autoclean: 'yes'
+    autoremove: 'yes'
     cache_valid_time: 86400
+    upgrade: 'yes'
 
 - name: python-apt dependency
   apt:
     name: ['python-apt']
     state: present
-    force: yes
 
-- name: apt-get upgrade
-  apt:
-    upgrade: dist
-
-- name: Reboot (as needed)
+- name: Reboot
   reboot:
-    reboot_timeout: 3600
-  when: cmdline or timezone or hostname or gpu_mem is changed
-  tags:
-  - boot
-  - shutdown
+    reboot_timeout: 120
+  when: cmdline.changed or timezone.changed or hostname.changed or swap.changed
