@@ -1,8 +1,5 @@
 [dev]
-node-01
-node-02
-node-03
-node-04
+node-[01:05]
 
 [master]
 node-01

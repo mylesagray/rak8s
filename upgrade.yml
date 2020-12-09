@@ -27,7 +27,7 @@
       tags: cordon
 
     - name: Drain Hosts
-      shell: "kubectl drain {{ item }} --ignore-daemonsets"
+      shell: "kubectl drain {{ item }} --ignore-daemonsets --delete-local-data"
       with_items:
         - "{{ groups['all'] }}"
       ignore_errors: yes
