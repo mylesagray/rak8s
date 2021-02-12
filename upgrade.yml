@@ -54,3 +54,7 @@
       with_items:
         - "{{ groups['all'] }}"
       tags: uncordon
+
+- hosts: all
+  roles:
+    - common
