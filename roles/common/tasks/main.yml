@@ -46,4 +46,4 @@
 - name: Reboot
   reboot:
     reboot_timeout: 120
-  when: cmdline.changed or timezone.changed or hostname.changed or swap.changed
+  when: cmdline.changed or timezone.changed or hostname.changed
