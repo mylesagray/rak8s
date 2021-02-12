@@ -19,12 +19,6 @@
     name: UTC
   register: timezone
 
-- name: reduce gpu memory
-  lineinfile:
-    path: /boot/config.txt
-    line: gpu_mem=16
-  register: gpu_mem
-
 - name: Enabling cgroup options at boot
   copy:
     src: cmdline.txt
@@ -35,14 +29,6 @@
   register: cmdline
   tags:
     - boot
-
-# Doc: http://manpages.ubuntu.com/manpages/trusty/man8/dphys-swapfile.8.html
-- name: Disable Swap
-  lineinfile:
-    path: /etc/dphys-swapfile
-    regexp: '^CONF_SWAPSIZE='
-    line: CONF_SWAPSIZE=0
-  register: swap
 
 - name: apt-get update
   apt:
