@@ -11,6 +11,8 @@
     dest: /etc/hosts
     regexp: "^{{ ansible_default_ipv4.address }}.+$"
     line: "{{ ansible_default_ipv4.address }} {{ ansible_fqdn }} {{ ansible_hostname }}"
+    state: present
+    backrefs: yes
   register: hostname
   tags: hostname
 
@@ -43,7 +45,12 @@
     name: ['python-apt']
     state: present
 
+- name: Check if reboot is required
+  stat:
+    path: /var/run/reboot-required
+  register: reboot_required
+
 - name: Reboot
   reboot:
-    reboot_timeout: 120
-  when: cmdline.changed or timezone.changed or hostname.changed
+    reboot_timeout: 240
+  when: cmdline.changed or timezone.changed or hostname.changed or reboot_required.stat.exists
